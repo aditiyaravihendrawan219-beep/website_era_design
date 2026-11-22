@@ -8,27 +8,50 @@ import path from "node:path";
 
 const app = new Hono();
 
-const tursoUrl = process.env.TURSO_DATABASE_URL || "";
-const tursoToken = process.env.TURSO_AUTH_TOKEN || "";
+const tursoUrl = String(process.env.TURSO_DATABASE_URL || "").trim();
+const tursoToken = String(process.env.TURSO_AUTH_TOKEN || "").trim();
 
 if (!tursoUrl || !tursoToken) {
-  console.warn("Peringatan: TURSO_DATABASE_URL atau TURSO_AUTH_TOKEN belum diatur di .env");
+  console.warn(
+    "Peringatan: TURSO_DATABASE_URL atau TURSO_AUTH_TOKEN belum diatur di environment variables."
+  );
 }
 
-const db = createClient({
-  url: tursoUrl,
-  authToken: tursoToken,
-});
+const db =
+  tursoUrl && tursoToken
+    ? createClient({
+        url: tursoUrl,
+        authToken: tursoToken,
+      })
+    : null;
+
+function requireDb(c) {
+  if (!db) {
+    return c.json(
+      {
+        ok: false,
+        error:
+          "Konfigurasi database Turso (TURSO_DATABASE_URL / TURSO_AUTH_TOKEN) belum diatur di Vercel.",
+      },
+      500
+    );
+  }
+  return null;
+}
 
 const ENV_INVITE_TOKEN = String(process.env.ADMIN_INVITE_TOKEN || "").trim();
 const SESSION_TTL_MS = 24 * 60 * 60 * 1000; // 24 jam
+const FALLBACK_DEV_SECRET = "eras-design-dev-secret-change-in-vercel-env";
 
-// Rahasia penandatangan token sesi (ambil dari AUTH_SECRET / ADMIN_PIN atau acak per proses)
-const ephemSecret = crypto.randomBytes(32).toString("hex");
 function getAuthSecret() {
-  return String(
-    process.env.AUTH_SECRET || process.env.ADMIN_PIN || ephemSecret
+  const secret = String(
+    process.env.AUTH_SECRET || process.env.ADMIN_PIN || ""
   ).trim();
+  if (!secret) {
+    console.warn("Peringatan: AUTH_SECRET belum diatur di environment variables.");
+    return FALLBACK_DEV_SECRET;
+  }
+  return secret;
 }
 
 // =========================================================================
@@ -59,7 +82,6 @@ function verifyPasswordHash(plainPassword, storedValue) {
     };
   }
 
-  // Fallback kompatibilitas jika ada password lama plaintext di database
   const a = Buffer.from(plainPassword, "utf8");
   const b = Buffer.from(raw, "utf8");
   if (a.length !== b.length) return { valid: false, needsRehash: false };
@@ -73,7 +95,9 @@ function createSessionToken(adminId, username) {
     usr: String(username),
     exp: Date.now() + SESSION_TTL_MS,
   };
-  const encodedPayload = Buffer.from(JSON.stringify(payload), "utf8").toString("base64url");
+  const encodedPayload = Buffer.from(JSON.stringify(payload), "utf8").toString(
+    "base64url"
+  );
   const sig = crypto
     .createHmac("sha256", getAuthSecret())
     .update(encodedPayload)
@@ -99,7 +123,9 @@ function verifySessionToken(token) {
   }
 
   try {
-    const parsed = JSON.parse(Buffer.from(encodedPayload, "base64url").toString("utf8"));
+    const parsed = JSON.parse(
+      Buffer.from(encodedPayload, "base64url").toString("utf8")
+    );
     if (!parsed || typeof parsed.exp !== "number" || Date.now() > parsed.exp) {
       return null;
     }
@@ -118,7 +144,9 @@ const MAX_FAILED_ATTEMPTS = 8;
 const LOCK_DURATION_MS = 10 * 60 * 1000; // 10 menit
 
 function getClientKey(c, suffix = "") {
-  const fwd = String(c.req.header("x-forwarded-for") || "").split(",")[0].trim();
+  const fwd = String(c.req.header("x-forwarded-for") || "")
+    .split(",")[0]
+    .trim();
   const realIp = String(c.req.header("x-real-ip") || "").trim();
   const ip = fwd || realIp || "local";
   return `${ip}:${suffix}`;
@@ -139,7 +167,11 @@ function isRateLimited(key) {
 
 function recordFailedAttempt(key) {
   const now = Date.now();
-  const current = authAttempts.get(key) || { count: 0, firstAt: now, lockedUntil: 0 };
+  const current = authAttempts.get(key) || {
+    count: 0,
+    firstAt: now,
+    lockedUntil: 0,
+  };
   if (now - current.firstAt > LOCK_DURATION_MS) {
     current.count = 1;
     current.firstAt = now;
@@ -160,7 +192,11 @@ function clearFailedAttempts(key) {
 // =========================================================================
 // INISIALISASI DATABASE & HELPER
 // =========================================================================
+let schemaInitialized = false;
+
 async function ensureDatabaseSchema() {
+  if (!db || schemaInitialized) return;
+
   try {
     await db.execute(`
       CREATE TABLE IF NOT EXISTS admin_users (
@@ -170,15 +206,23 @@ async function ensureDatabaseSchema() {
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
       )
     `);
-  } catch (err) {
-    console.error("Init admin_users error:", err);
-  }
 
-  try {
     await db.execute(`
       CREATE TABLE IF NOT EXISTS settings (
         key TEXT PRIMARY KEY,
         value TEXT NOT NULL
+      )
+    `);
+
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS items (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        category TEXT NOT NULL DEFAULT 'Desain Grafis',
+        price INTEGER NOT NULL,
+        unit TEXT NOT NULL DEFAULT 'paket',
+        note TEXT DEFAULT '',
+        image_url TEXT DEFAULT ''
       )
     `);
 
@@ -189,14 +233,17 @@ async function ensureDatabaseSchema() {
         args: [ENV_INVITE_TOKEN],
       });
     }
+
+    schemaInitialized = true;
   } catch (err) {
-    console.error("Init settings error:", err);
+    console.error("Init database schema error:", err);
   }
 }
 
-await ensureDatabaseSchema();
-
 async function getActiveInviteToken() {
+  await ensureDatabaseSchema();
+  if (!db) return ENV_INVITE_TOKEN;
+
   const tokenRes = await db.execute({
     sql: "SELECT value FROM settings WHERE key = 'admin_invite_token' LIMIT 1",
     args: [],
@@ -206,6 +253,9 @@ async function getActiveInviteToken() {
 }
 
 async function authenticateAdminUser(username, password) {
+  await ensureDatabaseSchema();
+  if (!db) return null;
+
   const cleanUser = String(username || "").trim();
   const cleanPass = String(password || "").trim();
   if (!cleanUser || !cleanPass) return null;
@@ -233,8 +283,13 @@ async function authenticateAdminUser(username, password) {
   };
 }
 
-// 1. Login admin menggunakan nama & sandi ter-hash di Turso
+// =========================================================================
+// ROUTE AUTH ADMIN
+// =========================================================================
 app.post("/api/admin/login", async (c) => {
+  const dbErr = requireDb(c);
+  if (dbErr) return dbErr;
+
   try {
     const body = await c.req.json();
     const username = String(body?.username || "").trim();
@@ -243,19 +298,28 @@ app.post("/api/admin/login", async (c) => {
 
     if (isRateLimited(rateKey)) {
       return c.json(
-        { ok: false, error: "Terlalu banyak percobaan gagal. Coba lagi 10 menit lagi." },
+        {
+          ok: false,
+          error: "Terlalu banyak percobaan gagal. Coba lagi 10 menit lagi.",
+        },
         429
       );
     }
 
     if (!username || !password) {
-      return c.json({ ok: false, error: "Nama admin dan sandi wajib diisi" }, 400);
+      return c.json(
+        { ok: false, error: "Nama admin dan sandi wajib diisi" },
+        400
+      );
     }
 
     const admin = await authenticateAdminUser(username, password);
     if (!admin) {
       recordFailedAttempt(rateKey);
-      return c.json({ ok: false, error: "Nama admin atau sandi salah" }, 401);
+      return c.json(
+        { ok: false, error: "Nama admin atau sandi salah" },
+        401
+      );
     }
 
     clearFailedAttempts(rateKey);
@@ -263,13 +327,19 @@ app.post("/api/admin/login", async (c) => {
     return c.json({ ok: true, admin, token });
   } catch (err) {
     console.error("Login admin error:", err);
-    return c.json({ ok: false, error: "Terjadi kesalahan saat memverifikasi akun admin" }, 500);
+    return c.json(
+      { ok: false, error: "Terjadi kesalahan saat memverifikasi akun admin" },
+      500
+    );
   }
 });
 
-// 2. Register akun admin baru (3 input: username, password, invite_token)
 app.post("/api/admin/register", async (c) => {
+  const dbErr = requireDb(c);
+  if (dbErr) return dbErr;
+
   try {
+    await ensureDatabaseSchema();
     const body = await c.req.json();
     const username = String(body?.username || "").trim();
     const password = String(body?.password || "").trim();
@@ -278,21 +348,31 @@ app.post("/api/admin/register", async (c) => {
 
     if (isRateLimited(rateKey)) {
       return c.json(
-        { ok: false, error: "Terlalu banyak percobaan token gagal. Coba lagi 10 menit lagi." },
+        {
+          ok: false,
+          error: "Terlalu banyak percobaan token gagal. Coba lagi 10 menit lagi.",
+        },
         429
       );
     }
 
     if (!username || !password || !inviteToken) {
       return c.json(
-        { ok: false, error: "Nama admin, sandi, dan token pendaftaran wajib diisi" },
+        {
+          ok: false,
+          error: "Nama admin, sandi, dan token pendaftaran wajib diisi",
+        },
         400
       );
     }
 
     if (!/^[a-zA-Z0-9_.-]{3,30}$/.test(username)) {
       return c.json(
-        { ok: false, error: "Nama admin 3-30 karakter (huruf, angka, titik, strip, underscore)" },
+        {
+          ok: false,
+          error:
+            "Nama admin 3-30 karakter (huruf, angka, titik, strip, underscore)",
+        },
         400
       );
     }
@@ -303,15 +383,28 @@ app.post("/api/admin/register", async (c) => {
 
     const activeToken = await getActiveInviteToken();
     if (!activeToken) {
-      return c.json({ ok: false, error: "Token pendaftaran belum diatur di server/database" }, 500);
+      return c.json(
+        {
+          ok: false,
+          error: "Token pendaftaran belum diatur di server/database",
+        },
+        500
+      );
     }
 
     const aBuf = Buffer.from(inviteToken, "utf8");
     const bBuf = Buffer.from(activeToken, "utf8");
-    const tokenMatch = aBuf.length === bBuf.length && crypto.timingSafeEqual(aBuf, bBuf);
+    const tokenMatch =
+      aBuf.length === bBuf.length && crypto.timingSafeEqual(aBuf, bBuf);
     if (!tokenMatch) {
       recordFailedAttempt(rateKey);
-      return c.json({ ok: false, error: "Token pendaftaran tidak valid atau sudah diganti" }, 403);
+      return c.json(
+        {
+          ok: false,
+          error: "Token pendaftaran tidak valid atau sudah diganti",
+        },
+        403
+      );
     }
 
     const existing = await db.execute({
@@ -319,7 +412,10 @@ app.post("/api/admin/register", async (c) => {
       args: [username],
     });
     if (existing.rows && existing.rows.length > 0) {
-      return c.json({ ok: false, error: "Nama admin sudah terdaftar, gunakan nama lain" }, 409);
+      return c.json(
+        { ok: false, error: "Nama admin sudah terdaftar, gunakan nama lain" },
+        409
+      );
     }
 
     const hashedPass = hashPassword(password);
@@ -345,13 +441,19 @@ app.post("/api/admin/register", async (c) => {
     );
   } catch (err) {
     console.error("Register admin error:", err);
-    return c.json({ ok: false, error: "Gagal mendaftarkan akun admin ke database" }, 500);
+    return c.json(
+      { ok: false, error: "Gagal mendaftarkan akun admin ke database" },
+      500
+    );
   }
 });
 
-// 3. Lupa sandi (reset sandi memakai nama admin + token pendaftaran aktif di Turso)
 app.post("/api/admin/reset-password", async (c) => {
+  const dbErr = requireDb(c);
+  if (dbErr) return dbErr;
+
   try {
+    await ensureDatabaseSchema();
     const body = await c.req.json();
     const username = String(body?.username || "").trim();
     const inviteToken = String(body?.invite_token || "").trim();
@@ -360,7 +462,10 @@ app.post("/api/admin/reset-password", async (c) => {
 
     if (isRateLimited(rateKey)) {
       return c.json(
-        { ok: false, error: "Terlalu banyak percobaan gagal. Coba lagi 10 menit lagi." },
+        {
+          ok: false,
+          error: "Terlalu banyak percobaan gagal. Coba lagi 10 menit lagi.",
+        },
         429
       );
     }
@@ -369,20 +474,33 @@ app.post("/api/admin/reset-password", async (c) => {
       return c.json({ ok: false, error: "Semua kolom wajib diisi" }, 400);
     }
     if (newPassword.length < 6) {
-      return c.json({ ok: false, error: "Sandi baru minimal 6 karakter" }, 400);
+      return c.json(
+        { ok: false, error: "Sandi baru minimal 6 karakter" },
+        400
+      );
     }
 
     const activeToken = await getActiveInviteToken();
     if (!activeToken) {
-      return c.json({ ok: false, error: "Token pendaftaran belum diatur di server/database" }, 500);
+      return c.json(
+        {
+          ok: false,
+          error: "Token pendaftaran belum diatur di server/database",
+        },
+        500
+      );
     }
 
     const aBuf = Buffer.from(inviteToken, "utf8");
     const bBuf = Buffer.from(activeToken, "utf8");
-    const tokenMatch = aBuf.length === bBuf.length && crypto.timingSafeEqual(aBuf, bBuf);
+    const tokenMatch =
+      aBuf.length === bBuf.length && crypto.timingSafeEqual(aBuf, bBuf);
     if (!tokenMatch) {
       recordFailedAttempt(rateKey);
-      return c.json({ ok: false, error: "Token pendaftaran tidak valid" }, 403);
+      return c.json(
+        { ok: false, error: "Token pendaftaran tidak valid" },
+        403
+      );
     }
 
     const check = await db.execute({
@@ -392,7 +510,10 @@ app.post("/api/admin/reset-password", async (c) => {
 
     if (!check.rows || check.rows.length === 0) {
       recordFailedAttempt(rateKey);
-      return c.json({ ok: false, error: "Nama admin tidak ditemukan" }, 404);
+      return c.json(
+        { ok: false, error: "Nama admin tidak ditemukan" },
+        404
+      );
     }
 
     clearFailedAttempts(rateKey);
@@ -404,11 +525,16 @@ app.post("/api/admin/reset-password", async (c) => {
     return c.json({ ok: true });
   } catch (err) {
     console.error("Reset password error:", err);
-    return c.json({ ok: false, error: "Gagal mereset sandi di database" }, 500);
+    return c.json(
+      { ok: false, error: "Gagal mereset sandi di database" },
+      500
+    );
   }
 });
 
-// Middleware autentikasi admin memakai Bearer session token
+// =========================================================================
+// MIDDLEWARE AUTENTIKASI ADMIN UNTUK ENDPOINT TERPROTEKSI
+// =========================================================================
 const publicApiPaths = new Set([
   "/api/admin/login",
   "/api/admin/register",
@@ -416,26 +542,40 @@ const publicApiPaths = new Set([
 ]);
 
 app.use("/api/*", async (c, next) => {
-  const isPublicGet = c.req.method === "GET" && (c.req.path === "/api/items" || c.req.path === "/api/logo");
-  if (isPublicGet || publicApiPaths.has(c.req.path)) {
+  const cleanPath = new URL(c.req.url).pathname.replace(/\/+$/, "") || "/";
+  const isPublicGet =
+    c.req.method === "GET" &&
+    (cleanPath === "/api/items" || cleanPath === "/api/logo");
+
+  if (isPublicGet || publicApiPaths.has(cleanPath)) {
     await next();
     return;
   }
 
   const authHeader = String(c.req.header("authorization") || "");
-  const bearerToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
+  const bearerToken = authHeader.startsWith("Bearer ")
+    ? authHeader.slice(7).trim()
+    : "";
   const session = verifySessionToken(bearerToken);
 
   if (!session) {
-    return c.json({ error: "Sesi admin tidak valid atau kedaluwarsa. Silakan masuk ulang." }, 401);
+    return c.json(
+      { error: "Sesi admin tidak valid atau kedaluwarsa. Silakan masuk ulang." },
+      401
+    );
   }
 
   c.set("adminSession", session);
   await next();
 });
 
-// 4. GET & PUT token pendaftaran admin di Turso (khusus admin terautentikasi)
+// =========================================================================
+// ROUTE INVITE TOKEN, KATALOG ITEMS & LOGO
+// =========================================================================
 app.get("/api/admin/invite-token", async (c) => {
+  const dbErr = requireDb(c);
+  if (dbErr) return dbErr;
+
   try {
     const token = await getActiveInviteToken();
     return c.json({ ok: true, invite_token: token });
@@ -446,15 +586,16 @@ app.get("/api/admin/invite-token", async (c) => {
 });
 
 app.put("/api/admin/invite-token", async (c) => {
+  const dbErr = requireDb(c);
+  if (dbErr) return dbErr;
+
   try {
+    await ensureDatabaseSchema();
     const body = await c.req.json();
     const nextToken = String(body?.invite_token || "").trim();
 
     if (nextToken.length < 6 || nextToken.length > 64 || /\s/.test(nextToken)) {
-      return c.json(
-        { error: "Token harus 6-64 karakter tanpa spasi" },
-        400
-      );
+      return c.json({ error: "Token harus 6-64 karakter tanpa spasi" }, 400);
     }
 
     await db.execute({
@@ -470,9 +611,12 @@ app.put("/api/admin/invite-token", async (c) => {
   }
 });
 
-// GET semua item katalog
 app.get("/api/items", async (c) => {
+  const dbErr = requireDb(c);
+  if (dbErr) return dbErr;
+
   try {
+    await ensureDatabaseSchema();
     const res = await db.execute("SELECT * FROM items ORDER BY id ASC");
     return c.json(res.rows);
   } catch (err) {
@@ -481,9 +625,12 @@ app.get("/api/items", async (c) => {
   }
 });
 
-// POST tambah item baru (dengan validasi input ke database)
 app.post("/api/items", async (c) => {
+  const dbErr = requireDb(c);
+  if (dbErr) return dbErr;
+
   try {
+    await ensureDatabaseSchema();
     const body = await c.req.json();
     const name = String(body?.name || "").trim();
     const category = String(body?.category || "Desain Grafis").trim();
@@ -496,7 +643,10 @@ app.post("/api/items", async (c) => {
       return c.json({ error: "Nama layanan harus 2-120 karakter" }, 400);
     }
     if (!Number.isFinite(price) || price < 500) {
-      return c.json({ error: "Harga minimal Rp 500 dan harus berupa angka valid" }, 400);
+      return c.json(
+        { error: "Harga minimal Rp 500 dan harus berupa angka valid" },
+        400
+      );
     }
     if (!unit) {
       return c.json({ error: "Satuan layanan wajib diisi" }, 400);
@@ -515,9 +665,12 @@ app.post("/api/items", async (c) => {
   }
 });
 
-// PUT edit item / harga (dengan validasi input ke database)
 app.put("/api/items/:id", async (c) => {
+  const dbErr = requireDb(c);
+  if (dbErr) return dbErr;
+
   try {
+    await ensureDatabaseSchema();
     const id = Number(c.req.param("id"));
     if (!Number.isInteger(id) || id <= 0) {
       return c.json({ error: "ID tidak valid" }, 400);
@@ -528,7 +681,10 @@ app.put("/api/items/:id", async (c) => {
     if (body?.price !== undefined) {
       const parsedPrice = Number(body.price);
       if (!Number.isFinite(parsedPrice) || parsedPrice < 500) {
-        return c.json({ error: "Harga minimal Rp 500 dan harus berupa angka valid" }, 400);
+        return c.json(
+          { error: "Harga minimal Rp 500 dan harus berupa angka valid" },
+          400
+        );
       }
       nextPrice = Math.round(parsedPrice);
     }
@@ -573,9 +729,12 @@ app.put("/api/items/:id", async (c) => {
   }
 });
 
-// DELETE hapus item
 app.delete("/api/items/:id", async (c) => {
+  const dbErr = requireDb(c);
+  if (dbErr) return dbErr;
+
   try {
+    await ensureDatabaseSchema();
     const id = Number(c.req.param("id"));
     if (!Number.isInteger(id) || id <= 0) {
       return c.json({ error: "ID tidak valid" }, 400);
@@ -593,9 +752,12 @@ app.delete("/api/items/:id", async (c) => {
   }
 });
 
-// GET logo brand
 app.get("/api/logo", async (c) => {
+  const dbErr = requireDb(c);
+  if (dbErr) return dbErr;
+
   try {
+    await ensureDatabaseSchema();
     const res = await db.execute({
       sql: "SELECT value FROM settings WHERE key = 'logo_url'",
       args: [],
@@ -608,9 +770,12 @@ app.get("/api/logo", async (c) => {
   }
 });
 
-// PUT update / reset logo brand
 app.put("/api/logo", async (c) => {
+  const dbErr = requireDb(c);
+  if (dbErr) return dbErr;
+
   try {
+    await ensureDatabaseSchema();
     const body = await c.req.json();
     const logoUrl = String(body?.logo_url || "").trim();
 
@@ -627,7 +792,9 @@ app.put("/api/logo", async (c) => {
   }
 });
 
-// Penyajian file statis dari folder public/
+// =========================================================================
+// PENYAJIAN FILE STATIS DARI FOLDER public/
+// =========================================================================
 const publicDir = path.resolve(process.cwd(), "public");
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
@@ -643,10 +810,14 @@ const mimeTypes = {
 
 app.get("*", (c) => {
   const reqPath = new URL(c.req.url).pathname;
-  const targetRel = reqPath === "/" ? "index.html" : reqPath.replace(/^\/+/, "");
+  const targetRel =
+    reqPath === "/" ? "index.html" : reqPath.replace(/^\/+/, "");
   const resolvedPath = path.resolve(publicDir, targetRel);
 
-  if (!resolvedPath.startsWith(publicDir + path.sep) && resolvedPath !== publicDir) {
+  if (
+    !resolvedPath.startsWith(publicDir + path.sep) &&
+    resolvedPath !== publicDir
+  ) {
     return c.text("Forbidden", 403);
   }
 
@@ -668,10 +839,18 @@ app.get("*", (c) => {
   });
 });
 
+// =========================================================================
+// ENTRYPOINT VERCEL & LOKAL
+// =========================================================================
+const isVercel = Boolean(process.env.VERCEL);
 const port = Number(process.env.PORT || 3000);
-console.log(`ERAS DESIGN (Node server.js) berjalan di http://localhost:${port}`);
 
-serve({
-  fetch: app.fetch,
-  port,
-});
+if (!isVercel) {
+  console.log(`ERAS DESIGN (Node server.js) berjalan di http://localhost:${port}`);
+  serve({
+    fetch: app.fetch,
+    port,
+  });
+}
+
+export default app;
