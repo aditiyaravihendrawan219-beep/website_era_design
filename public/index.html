@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link
+        rel="icon"
+        type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' fill='none'%3E%3Crect width='64' height='64' rx='16' fill='%23EEF6FC'/%3E%3Cpath d='M46 14C34 10 18 14 16 26C15 31 19 34 25 34H42' stroke='%232874A6' stroke-width='7.5' stroke-linecap='round'/%3E%3Cpath d='M45 14C37 11 26 12 21 17' stroke='%23D94E43' stroke-width='7.5' stroke-linecap='round'/%3E%3Cpath d='M24 34C16 35 14 44 20 50C26 55 39 54 47 49' stroke='%23F5BD41' stroke-width='7.5' stroke-linecap='round'/%3E%3Cpath d='M17 44C18 49 24 53 32 53' stroke='%235B9A68' stroke-width='7.5' stroke-linecap='round'/%3E%3Ccircle cx='43' cy='34' r='3.5' fill='%23D94E43'/%3E%3C/svg%3E"
+    >
+    <title>ERAS DESIGN — Desain Grafis Plus Cetak</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=JetBrains+Mono:wght@600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['Fredoka', 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        eras: {
+                            sky: '#D8E8F8',
+                            skylight: '#EEF6FC',
+                            gold: '#F5BD41',
+                            goldhover: '#E2A829',
+                            blue: '#2874A6',
+                            navy: '#1E6091',
+                            deep: '#17496D',
+                            coral: '#D94E43',
+                            mint: '#88B04B',
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-[#F4F9FE] text-eras-deep font-sans antialiased selection:bg-eras-gold selection:text-eras-deep flex flex-col min-h-screen pb-28 lg:pb-0">
+
+    <!-- ===================================================================== -->
+    <!-- HEADER & MODE SWITCHER (RESPONSIF + HAMBURGER MOBILE)                 -->
+    <!-- ===================================================================== -->
+    <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b-2 border-eras-navy/20">
+        <div class="max-w-7xl xl:max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                <!-- HIDDEN GEM: Klik logo E ini 5x dalam 2 detik untuk membuka panel Admin -->
+                <button
+                    type="button"
+                    onclick="handleSecretAdminTrigger()"
+                    title="ERAS DESIGN"
+                    class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-eras-skylight border-2 border-eras-navy flex items-center justify-center shrink-0 shadow-[0_3px_0_#1E6091] hover:scale-105 active:scale-95 transition-transform cursor-pointer"
+                >
+                    <svg viewBox="0 0 64 64" class="w-7 h-7 sm:w-8 sm:h-8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M46 14C34 10 18 14 16 26C15 31 19 34 25 34H42" stroke="#2874A6" stroke-width="7.5" stroke-linecap="round"/>
+                        <path d="M45 14C37 11 26 12 21 17" stroke="#D94E43" stroke-width="7.5" stroke-linecap="round"/>
+                        <path d="M24 34C16 35 14 44 20 50C26 55 39 54 47 49" stroke="#F5BD41" stroke-width="7.5" stroke-linecap="round"/>
+                        <path d="M17 44C18 49 24 53 32 53" stroke="#5B9A68" stroke-width="7.5" stroke-linecap="round"/>
+                        <circle cx="43" cy="34" r="3.5" fill="#D94E43"/>
+                    </svg>
+                </button>
+
+                <a href="#" onclick="switchMode('user'); closeMobileNav(); return false;" class="min-w-0 group">
+                    <div class="flex items-center gap-2">
+                        <span class="font-display font-bold text-base sm:text-xl tracking-wide text-eras-navy leading-none truncate">
+                            ERAS DESIGN
+                        </span>
+                        <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-eras-coral text-white">
+                            Plus Cetak
+                        </span>
+                    </div>
+                    <p class="text-[11px] sm:text-xs font-semibold text-eras-blue mt-0.5 truncate">
+                        Studio Desain Grafis &amp; Percetakan UMKM
+                    </p>
+                </a>
+            </div>
+
+            <!-- Navigasi Desktop -->
+            <div class="hidden sm:flex items-center gap-2.5">
+                <a href="https://www.instagram.com/onyoure_ra" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-eras-skylight hover:bg-eras-sky text-eras-navy border border-eras-navy/30 text-xs font-bold transition-colors">
+                    <svg class="w-3.5 h-3.5 text-eras-coral shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
+                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                        <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
+                    </svg>
+                    <span>@onyoure_ra</span>
+                </a>
+
+                <div class="flex items-center bg-eras-sky/70 p-1 rounded-xl border-2 border-eras-navy">
+                    <button id="btn-mode-user" onclick="switchMode('user')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-eras-gold text-eras-deep shadow-xs">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                        <span>Katalog</span>
+                    </button>
+                    <button id="btn-mode-admin" onclick="switchMode('admin')" class="hidden flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-eras-navy hover:bg-white/60">
+                        <i data-lucide="lock" class="w-3.5 h-3.5" id="admin-lock-icon"></i>
+                        <span>Admin</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tombol Hamburger Mobile -->
+            <button
+                type="button"
+                id="btn-mobile-hamburger"
+                onclick="toggleMobileNav()"
+                aria-label="Buka Menu Navigasi"
+                aria-expanded="false"
+                class="sm:hidden w-10 h-10 rounded-xl bg-eras-skylight hover:bg-eras-sky border-2 border-eras-navy text-eras-navy flex items-center justify-center shrink-0 shadow-[0_2px_0_#1E6091] active:translate-y-0.5 transition-all"
+            >
+                <i data-lucide="menu" id="mobile-hamburger-icon" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Dropdown Menu Mobile -->
+        <div id="mobile-nav-menu" class="hidden sm:hidden border-t-2 border-eras-navy/15 bg-white px-4 py-3.5 space-y-2.5 shadow-lg">
+            <div class="grid grid-cols-1 gap-2" id="mobile-mode-grid">
+                <button
+                    id="btn-mode-user-mobile"
+                    onclick="switchMode('user'); closeMobileNav();"
+                    class="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-extrabold border-2 border-eras-navy bg-eras-gold text-eras-deep shadow-[0_2px_0_#1E6091]"
+                >
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                    <span>Katalog</span>
+                </button>
+                <button
+                    id="btn-mode-admin-mobile"
+                    onclick="switchMode('admin'); closeMobileNav();"
+                    class="hidden flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold border-2 border-eras-navy/30 bg-eras-skylight text-eras-navy"
+                >
+                    <i data-lucide="lock" class="w-3.5 h-3.5" id="admin-lock-icon-mobile"></i>
+                    <span>Admin</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 pt-1">
+                <a
+                    href="https://wa.me/6285701382605"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-eras-skylight border border-eras-navy/30 text-eras-navy text-xs font-bold"
+                >
+                    <i data-lucide="phone" class="w-3.5 h-3.5 text-emerald-600"></i>
+                    <span>WhatsApp</span>
+                </a>
+                <a
+                    href="https://www.instagram.com/onyoure_ra"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-eras-skylight border border-eras-navy/30 text-eras-navy text-xs font-bold"
+                >
+                    <svg class="w-3.5 h-3.5 text-eras-coral shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
+                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                        <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
+                    </svg>
+                    <span>@onyoure_ra</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===================================================================== -->
+    <!-- VIEW 1: USER CATALOG & ESTIMATION CALCULATOR                          -->
+    <!-- ===================================================================== -->
+    <main id="view-user" class="flex-1">
+        <!-- Hero -->
+        <section class="sky-hero-bg border-b-2 border-eras-navy/20 relative overflow-hidden">
+            <svg class="absolute top-6 left-4 w-28 sm:w-40 text-white/80 pointer-events-none" viewBox="0 0 200 80" fill="currentColor">
+                <path d="M35 65H165C180 65 190 55 190 42C190 30 180 20 168 20C165 8 153 0 139 0C127 0 116 7 112 17C107 14 101 12 94 12C78 12 65 24 64 39C60 37 55 36 50 36C33 36 20 48 20 62C20 64 27 65 35 65Z"/>
+            </svg>
+            <svg class="absolute top-12 right-6 w-24 sm:w-36 text-white/75 pointer-events-none" viewBox="0 0 200 80" fill="currentColor">
+                <path d="M35 65H165C180 65 190 55 190 42C190 30 180 20 168 20C165 8 153 0 139 0C127 0 116 7 112 17C107 14 101 12 94 12C78 12 65 24 64 39C60 37 55 36 50 36C33 36 20 48 20 62C20 64 27 65 35 65Z"/>
+            </svg>
+
+            <div class="max-w-7xl xl:max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-7 pb-6 sm:pt-10 sm:pb-8 relative z-10">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                    <div class="lg:col-span-7 text-center lg:text-left">
+                        <div class="inline-flex flex-wrap items-center justify-center lg:justify-start gap-2 px-3.5 py-1.5 rounded-full bg-white border-2 border-eras-navy text-eras-navy text-xs font-extrabold shadow-[0_2px_0_#1E6091] mb-4">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span>Antrean Buka • Pengerjaan &lt; 24 Jam* • Garansi 2x Revisi</span>
+                        </div>
+
+                        <div>
+                            <h1 class="font-display font-bold text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.05] select-none inline-flex flex-col items-center">
+                                <span class="block poster-text-gold">DESAIN GRAFIS</span>
+                                <span class="inline-block my-1.5 px-4 py-1 bg-eras-coral text-white text-sm sm:text-lg rounded-xl border-2 border-white shadow-md -rotate-3">
+                                    PLUS
+                                </span>
+                                <span class="block poster-text-blue">CETAK JADI!</span>
+                            </h1>
+                        </div>
+
+                        <p class="text-sm sm:text-base font-semibold text-eras-deep/90 mt-4 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                            Nggak perlu pusing mikirin ukuran bleed atau warna pecah saat naik cetak. Pilih layanan desain atau cetak di bawah, cek estimasi harganya langsung, lalu kirim ke WhatsApp!
+                        </p>
+
+                        <div class="mt-5 flex flex-wrap items-center justify-center lg:justify-start gap-2.5 text-xs font-bold">
+                            <a href="https://wa.me/6285701382605" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border-2 border-eras-navy text-eras-navy hover:bg-eras-gold transition-colors shadow-[0_2px_0_#1E6091]">
+                                <i data-lucide="phone" class="w-3.5 h-3.5 text-emerald-600"></i>
+                                <span>WA: 0857 0138 2605</span>
+                            </a>
+                            <a href="https://www.instagram.com/onyoure_ra" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border-2 border-eras-navy text-eras-navy hover:bg-eras-gold transition-colors shadow-[0_2px_0_#1E6091]">
+                                <svg class="w-3.5 h-3.5 text-eras-coral shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
+                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
+                                </svg>
+                                <span>IG: @onyoure_ra</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-5 flex justify-center">
+                        <div class="relative w-full max-w-[340px]">
+                            <svg class="w-12 h-12 text-white drop-shadow-sm absolute -top-3 right-2 animate-bounce" viewBox="0 0 48 48" fill="none">
+                                <path d="M42 6L4 22L19 28L36 13L23 31L35 37L42 6Z" fill="#FFFFFF" stroke="#1E6091" stroke-width="2.5" stroke-linejoin="round"/>
+                            </svg>
+
+                            <svg viewBox="0 0 360 250" class="w-full h-auto drop-shadow-md" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="180" cy="128" r="98" fill="#FFF7D6" stroke="#FFFFFF" stroke-width="4"/>
+                                <path d="M122 182C122 154 146 138 180 138C214 138 238 154 238 182V195H122V182Z" fill="#9BC4E2" stroke="#1E6091" stroke-width="3"/>
+                                <path d="M162 140H198L192 185H168L162 140Z" fill="#2874A6"/>
+                                <path d="M138 102C138 72 156 54 180 54C204 54 222 72 222 102C222 128 214 152 180 156C146 152 138 128 138 102Z" fill="#22252A" stroke="#18181B" stroke-width="3"/>
+                                <path d="M154 98C154 82 165 72 180 72C195 72 206 82 206 98C206 115 195 127 180 127C165 127 154 115 154 98Z" fill="#FCD5B5"/>
+                                <circle cx="163" cy="108" r="4" fill="#F4978E" opacity="0.7"/>
+                                <circle cx="197" cy="108" r="4" fill="#F4978E" opacity="0.7"/>
+                                <path d="M174 114C176 117 184 117 186 114" stroke="#8D5524" stroke-width="2.5" stroke-linecap="round"/>
+                                <rect x="156" y="90" width="21" height="14" rx="5" fill="#18181B"/>
+                                <rect x="183" y="90" width="21" height="14" rx="5" fill="#18181B"/>
+                                <path d="M177 95H183" stroke="#18181B" stroke-width="3"/>
+                                <path d="M160 93L165 100" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+                                <path d="M187 93L192 100" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+
+                                <g transform="translate(46, 132)">
+                                    <rect x="20" y="14" width="16" height="34" rx="8" fill="#6AB04C" stroke="#1E6091" stroke-width="2.5"/>
+                                    <path d="M20 28H14C11 28 9 26 9 23V19" stroke="#6AB04C" stroke-width="6" stroke-linecap="round"/>
+                                    <path d="M36 24H42C45 24 47 22 47 19V16" stroke="#6AB04C" stroke-width="6" stroke-linecap="round"/>
+                                    <circle cx="28" cy="12" r="4.5" fill="#F5BD41"/>
+                                    <circle cx="9" cy="17" r="3.5" fill="#D94E43"/>
+                                    <path d="M12 44H44L40 68H16L12 44Z" fill="#F06292" stroke="#1E6091" stroke-width="2.5" stroke-linejoin="round"/>
+                                    <rect x="10" y="40" width="36" height="6" rx="3" fill="#F48FB1" stroke="#1E6091" stroke-width="2.5"/>
+                                </g>
+
+                                <g transform="translate(118, 146)">
+                                    <rect x="0" y="0" width="124" height="50" rx="8" fill="#2B303A" stroke="#18181B" stroke-width="3"/>
+                                    <circle cx="62" cy="25" r="9" fill="#F5BD41"/>
+                                    <circle cx="62" cy="25" r="4" fill="#FFFFFF"/>
+                                    <path d="M46 50H78L84 56H40L46 50Z" fill="#4A5568"/>
+                                </g>
+
+                                <g transform="translate(264, 152)">
+                                    <path d="M6 12H38L34 48H10L6 12Z" fill="#E8F5E9" stroke="#1E6091" stroke-width="2.5" stroke-linejoin="round"/>
+                                    <path d="M8 22H36L33 46H11L8 22Z" fill="#88B04B"/>
+                                    <path d="M7 14H37L36 22H8L7 14Z" fill="#558B2F"/>
+                                    <rect x="14" y="16" width="7" height="7" rx="1.5" fill="#FFFFFF" opacity="0.8"/>
+                                    <rect x="23" y="18" width="6" height="6" rx="1.5" fill="#FFFFFF" opacity="0.7"/>
+                                </g>
+
+                                <rect x="24" y="200" width="312" height="10" rx="5" fill="#22252A"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Catalog & Calculator -->
+        <div class="max-w-7xl xl:max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-12">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- Catalog Column -->
+                <div class="lg:col-span-8 space-y-5">
+                    <div class="eras-card rounded-2xl p-4 space-y-3.5">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <h2 class="font-display font-bold text-lg text-eras-navy flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-lg bg-eras-gold border border-eras-navy flex items-center justify-center text-xs">
+                                    <i data-lucide="layers" class="w-3.5 h-3.5 text-eras-deep"></i>
+                                </span>
+                                <span>Daftar Layanan &amp; Estimasi Harga</span>
+                            </h2>
+                            <span class="text-xs font-bold text-eras-blue">Klik "+ Pilih" untuk hitung total</span>
+                        </div>
+
+                        <div class="relative">
+                            <i data-lucide="search" class="w-4 h-4 text-eras-navy absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                            <input
+                                type="text"
+                                id="search-input"
+                                oninput="renderCatalog()"
+                                placeholder="Cari logo, stiker, banner, sertifikat, kartu nama, menu..."
+                                class="w-full pl-10 pr-4 py-2.5 bg-eras-skylight border-2 border-eras-navy/40 rounded-xl text-sm font-medium text-eras-deep placeholder:text-eras-blue/60 focus:outline-none focus:border-eras-navy focus:bg-white transition-all"
+                            >
+                        </div>
+
+                        <div id="category-pills" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+                    </div>
+
+                    <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+
+                    <div id="empty-search" class="hidden eras-card rounded-2xl p-8 text-center">
+                        <div class="w-12 h-12 rounded-2xl bg-eras-sky text-eras-navy border-2 border-eras-navy flex items-center justify-center mx-auto mb-3">
+                            <i data-lucide="search-x" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-eras-navy text-base">Layanan tidak ditemukan</h3>
+                        <p class="text-xs text-eras-blue mt-1">Coba kata kunci lain atau klik tombol reset di bawah.</p>
+                        <button onclick="resetFilters()" class="mt-4 px-4 py-2 eras-btn-primary text-xs font-extrabold rounded-xl">
+                            Tampilkan Semua Layanan
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Desktop Calculator Sidebar -->
+                <div class="hidden lg:block lg:col-span-4 sticky top-24">
+                    <div class="eras-card rounded-2xl overflow-hidden">
+                        <div class="p-4 bg-eras-navy text-white flex items-center justify-between border-b-2 border-eras-navy">
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-lg bg-eras-gold text-eras-deep flex items-center justify-center">
+                                    <i data-lucide="calculator" class="w-4 h-4"></i>
+                                </div>
+                                <h3 class="font-display font-bold text-base tracking-wide">Kalkulator Estimasi</h3>
+                            </div>
+                            <button onclick="clearCart()" id="btn-clear-desktop" class="hidden text-xs font-bold text-eras-gold hover:underline">
+                                Reset
+                            </button>
+                        </div>
+
+                        <div class="p-4 bg-white">
+                            <div class="mb-3 px-3 py-2 rounded-xl bg-eras-skylight border border-eras-navy/20 flex items-center justify-between text-[11px] font-bold text-eras-navy">
+                                <span>Status Antrean</span>
+                                <span class="text-emerald-700 font-extrabold">Tersedia • Konfirmasi WA</span>
+                            </div>
+
+                            <div id="desktop-cart-items" class="space-y-2.5 max-h-72 overflow-y-auto pr-1"></div>
+
+                            <div id="desktop-note-box" class="hidden mt-4 pt-3 border-t-2 border-dashed border-eras-sky space-y-2.5">
+                                <div>
+                                    <label class="block text-[11px] font-extrabold text-eras-navy mb-1">Nama Pemesan / Usaha (Opsional)</label>
+                                    <input type="text" id="customer-name-desktop" oninput="syncCustomerInputs('desktop')" placeholder="Contoh: Kak Rina - Seblak Juara" class="w-full px-3 py-2 bg-eras-skylight border-2 border-eras-navy/30 rounded-xl text-xs font-medium focus:outline-none focus:border-eras-navy">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-extrabold text-eras-navy mb-1">Catatan Ukuran / Konsep (Opsional)</label>
+                                    <input type="text" id="customer-note-desktop" oninput="syncCustomerInputs('desktop')" placeholder="Contoh: Ukuran 100x300 cm, nuansa kuning" class="w-full px-3 py-2 bg-eras-skylight border-2 border-eras-navy/30 rounded-xl text-xs font-medium focus:outline-none focus:border-eras-navy">
+                                </div>
+                            </div>
+
+                            <div class="mt-4 pt-4 border-t-2 border-eras-navy/15">
+                                <div class="flex items-baseline justify-between mb-1">
+                                    <span class="text-xs font-extrabold text-eras-blue uppercase">Estimasi Total</span>
+                                    <span id="desktop-grand-total" class="font-mono font-bold text-2xl text-eras-navy">Rp 0</span>
+                                </div>
+                                <p class="text-[11px] text-eras-blue/80 mb-4">
+                                    *Estimasi awal katalog. Detail ukuran &amp; antrean dikonfirmasi admin.
+                                </p>
+
+                                <button
+                                    id="btn-wa-desktop"
+                                    onclick="openCheckoutModal()"
+                                    disabled
+                                    class="w-full py-3 px-4 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all bg-slate-100 text-slate-400 border-2 border-slate-200 cursor-not-allowed"
+                                >
+                                    <i data-lucide="message-circle" class="w-4 h-4"></i>
+                                    <span>Pilih Layanan Dulu</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ===================================================================== -->
+    <!-- MOBILE BOTTOM BAR & DRAWER                                            -->
+    <!-- ===================================================================== -->
+    <div id="mobile-bottom-bar" class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t-2 border-eras-navy shadow-[0_-6px_20px_rgba(30,96,145,0.15)]">
+        <div id="mobile-drawer" class="hidden max-h-[65vh] overflow-y-auto px-4 pt-4 pb-3 border-b-2 border-eras-sky bg-eras-skylight">
+            <div class="flex items-center justify-between mb-3">
+                <span class="font-display font-bold text-xs uppercase tracking-wider text-eras-navy">Rincian Layanan Dipilih</span>
+                <button onclick="clearCart()" class="text-xs font-extrabold text-eras-coral">Hapus Semua</button>
+            </div>
+            <div id="mobile-cart-items" class="space-y-2 mb-3"></div>
+            <div class="space-y-2 pt-2 border-t border-eras-navy/20">
+                <input type="text" id="customer-name-mobile" oninput="syncCustomerInputs('mobile')" placeholder="Nama Pemesan / Usaha (Opsional)" class="w-full px-3 py-2 bg-white border-2 border-eras-navy/30 rounded-xl text-xs font-medium">
+                <input type="text" id="customer-note-mobile" oninput="syncCustomerInputs('mobile')" placeholder="Catatan ukuran / konsep desain (Opsional)" class="w-full px-3 py-2 bg-white border-2 border-eras-navy/30 rounded-xl text-xs font-medium">
+            </div>
+        </div>
+
+        <div class="px-4 py-3 flex items-center justify-between gap-3">
+            <button onclick="toggleMobileDrawer()" class="flex items-center gap-2.5 text-left flex-1 min-w-0">
+                <div class="relative w-11 h-11 rounded-xl bg-eras-gold border-2 border-eras-navy flex items-center justify-center shrink-0 text-eras-deep shadow-[0_2px_0_#1E6091]">
+                    <i data-lucide="calculator" class="w-5 h-5"></i>
+                    <span id="mobile-badge-count" class="hidden absolute -top-2 -right-2 w-5 h-5 rounded-full bg-eras-coral border border-white text-white text-[10px] font-extrabold flex items-center justify-center">0</span>
+                </div>
+                <div class="truncate">
+                    <div class="flex items-center gap-1 text-[11px] text-eras-blue font-extrabold">
+                        <span>Estimasi Total</span>
+                        <i data-lucide="chevron-up" id="mobile-drawer-chevron" class="w-3.5 h-3.5 transition-transform"></i>
+                    </div>
+                    <div id="mobile-grand-total" class="font-mono font-bold text-base text-eras-navy truncate">Rp 0</div>
+                </div>
+            </button>
+
+            <button
+                id="btn-wa-mobile"
+                onclick="openCheckoutModal()"
+                disabled
+                class="px-4 py-3 rounded-xl font-extrabold text-xs sm:text-sm flex items-center gap-2 shrink-0 transition-all bg-slate-100 text-slate-400 border-2 border-slate-200 cursor-not-allowed"
+            >
+                <i data-lucide="message-circle" class="w-4 h-4"></i>
+                <span>Order WA</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- VIEW 2: ADMIN LOGIN, REGISTER, LUPA SANDI & CRUD PANEL                -->
+    <!-- ===================================================================== -->
+    <section id="view-admin" class="hidden flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 pt-6 pb-12">
+        <div id="admin-pin-screen" class="max-w-sm mx-auto eras-card rounded-2xl p-6 text-center my-8">
+            <div class="w-14 h-14 rounded-2xl bg-eras-gold border-2 border-eras-navy text-eras-deep flex items-center justify-center mx-auto mb-3 shadow-[0_3px_0_#1E6091]">
+                <i data-lucide="shield-check" class="w-7 h-7"></i>
+            </div>
+            <h2 class="font-display font-bold text-xl text-eras-navy">Admin ERAS DESIGN</h2>
+            <p class="text-xs font-medium text-eras-blue mt-1 mb-4">
+                Akses pengelola katalog &amp; harga (Database Turso).
+            </p>
+
+            <!-- Switch Masuk / Daftar Akun -->
+            <div class="grid grid-cols-2 gap-1.5 bg-eras-skylight p-1 rounded-xl border-2 border-eras-navy/30 mb-4 text-xs font-extrabold">
+                <button type="button" id="tab-auth-login" onclick="switchAuthTab('login')" class="py-2 rounded-lg bg-eras-gold text-eras-deep border border-eras-navy transition-all">
+                    Masuk
+                </button>
+                <button type="button" id="tab-auth-register" onclick="switchAuthTab('register')" class="py-2 rounded-lg text-eras-navy hover:bg-white/70 transition-all">
+                    Daftar Akun
+                </button>
+            </div>
+
+            <!-- 1. FORM MASUK -->
+            <div id="auth-form-login" class="space-y-3 text-left">
+                <div>
+                    <label for="admin-username-input" class="block text-xs font-extrabold text-eras-navy mb-1">Nama Admin</label>
+                    <input
+                        type="text"
+                        id="admin-username-input"
+                        autocomplete="username"
+                        onkeyup="if(event.key==='Enter') verifyAdminPin()"
+                        placeholder="Masukkan nama admin"
+                        class="w-full px-4 py-2.5 bg-eras-skylight border-2 border-eras-navy rounded-xl text-sm font-semibold text-eras-deep focus:outline-none focus:bg-white"
+                    >
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label for="admin-pin-input" class="block text-xs font-extrabold text-eras-navy">Sandi</label>
+                        <button type="button" onclick="switchAuthTab('forgot')" class="text-[11px] font-bold text-eras-blue hover:underline">
+                            Lupa sandi?
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <input
+                            type="password"
+                            id="admin-pin-input"
+                            autocomplete="current-password"
+                            onkeyup="if(event.key==='Enter') verifyAdminPin()"
+                            placeholder="Masukkan sandi"
+                            class="w-full pl-4 pr-11 py-2.5 bg-eras-skylight border-2 border-eras-navy rounded-xl text-sm font-mono font-bold text-eras-deep focus:outline-none focus:bg-white"
+                        >
+                        <button
+                            type="button"
+                            onclick="togglePasswordVisibility('admin-pin-input', 'eye-login')"
+                            aria-label="Tampilkan atau sembunyikan sandi"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-eras-navy hover:text-eras-deep p-1"
+                        >
+                            <i data-lucide="eye" id="eye-login" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <p id="pin-error" class="hidden text-xs text-eras-coral font-bold">Nama admin atau sandi salah!</p>
+
+                <button type="button" onclick="verifyAdminPin()" class="w-full py-2.5 eras-btn-primary font-extrabold text-sm rounded-xl">
+                    Buka Panel Admin
+                </button>
+            </div>
+
+            <!-- 2. FORM DAFTAR AKUN -->
+            <form id="auth-form-register" onsubmit="handleRegisterAdmin(event)" class="hidden space-y-3 text-left">
+                <div>
+                    <label for="reg-username" class="block text-xs font-extrabold text-eras-navy mb-1">Nama Admin Baru *</label>
+                    <input
+                        type="text"
+                        id="reg-username"
+                        required
+                        placeholder="Misal: mbak_era"
+                        class="w-full px-4 py-2.5 bg-eras-skylight border-2 border-eras-navy rounded-xl text-sm font-semibold text-eras-deep focus:outline-none focus:bg-white"
+                    >
+                </div>
+
+                <div>
+                    <label for="reg-password" class="block text-xs font-extrabold text-eras-navy mb-1">Sandi Baru *</label>
+                    <div class="relative">
+                        <input
+                            type="password"
+                            id="reg-password"
+                            required
+                            minlength="6"
+                            placeholder="Minimal 6 karakter"
+                            class="w-full pl-4 pr-11 py-2.5 bg-eras-skylight border-2 border-eras-navy rounded-xl text-sm font-mono font-bold text-eras-deep focus:outline-none focus:bg-white"
+                        >
+                        <button
+                            type="button"
+                            onclick="togglePasswordVisibility('reg-password', 'eye-reg')"
+                            aria-label="Tampilkan atau sembunyikan sandi baru"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-eras-navy hover:text-eras-deep p-1"
+                        >
+                            <i data-lucide="eye" id="eye-reg" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="reg-invite-token" class="block text-xs font-extrabold text-eras-navy mb-1">Token Pendaftaran Admin *</label>
+                    <div class="relative">
+                        <input
+                            type="password"
+                            id="reg-invite-token"
+                            required
+                            placeholder="Masukkan token dari admin"
+                            class="w-full pl-4 pr-11 py-2.5 bg-eras-skylight border-2 border-eras-navy rounded-xl text-sm font-mono font-bold text-eras-deep focus:outline-none focus:bg-white"
+                        >
+                        <button
+                            type="button"
+                            onclick="togglePasswordVisibility('reg-invite-token', 'eye-token')"
+                            aria-label="Tampilkan atau sembunyikan token"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-eras-navy hover:text-eras-deep p-1"
+                        >
+                            <i data-lucide="eye" id="eye-token" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <p id="reg-feedback" class="hidden text-xs font-bold"></p>
+
+                <button type="submit" class="w-full py-2.5 eras-btn-primary font-extrabold text-sm rounded-xl">
+                    Daftar Akun Admin
+                </button>
+            </form>
+
+            <!-- 3. FORM LUPA SANDI -->
+            <form id="auth-form-forgot" onsubmit="handleResetPassword(event)" class="hidden space-y-3 text-left">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-extrabold text-eras-navy">Reset Sandi Admin</span>
+                    <button type="button" onclick="switchAuthTab('login')" class="text-[11px] font-bold text-eras-blue hover:underline">
+                        Kembali ke Masuk
+                    </button>
+                </div>
+
+                <div>
+                    <label for="forgot-username" class="block text-xs font-extrabold text-eras-navy mb-1">Nama Admin *</label>
+                    <input
+                        type="text"
+                        id="forgot-username"
+                        required
+                        placeholder="Masukkan nama admin"
+                        class="w-full px-4 py-2.5 bg-eras-skylight border-2 border-eras-navy rounded-xl text-sm font-semibold text-eras-deep focus:outline-none focus:bg-white"
+                    >
+                </div>
+
+                <div>
+                    <label for="forgot-invite-token" class="block text-xs font-extrabold text-eras-navy mb-1">Token Pendaftaran Admin *</label>
+                    <input
+                        type="password"
+                        id="forgot-invite-token"
+                        required
+                        placeholder="Masukkan token aktif dari admin"
+                        class="w-full px-4 py-2.5 bg-eras-skylight border-2 border-eras-navy rounded-xl text-sm font-mono font-bold text-eras-deep focus:outline-none focus:bg-white"
+                    >
+                </div>
+
+                <div>
+                    <label for="forgot-new-password" class="block text-xs font-extrabold text-eras-navy mb-1">Sandi Baru *</label>
+                    <div class="relative">
+                        <input
+                            type="password"
+                            id="forgot-new-password"
+                            required
+                            minlength="6"
+                            placeholder="Minimal 6 karakter"
+                            class="w-full pl-4 pr-11 py-2.5 bg-eras-skylight border-2 border-eras-navy rounded-xl text-sm font-mono font-bold text-eras-deep focus:outline-none focus:bg-white"
+                        >
+                        <button
+                            type="button"
+                            onclick="togglePasswordVisibility('forgot-new-password', 'eye-forgot')"
+                            aria-label="Tampilkan atau sembunyikan sandi baru"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-eras-navy hover:text-eras-deep p-1"
+                        >
+                            <i data-lucide="eye" id="eye-forgot" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <p id="forgot-feedback" class="hidden text-xs font-bold"></p>
+
+                <button type="submit" class="w-full py-2.5 eras-btn-primary font-extrabold text-sm rounded-xl">
+                    Simpan Sandi Baru
+                </button>
+            </form>
+
+            <div class="mt-4 pt-3 border-t border-eras-navy/15">
+                <button type="button" onclick="switchMode('user')" class="text-xs font-bold text-eras-blue hover:text-eras-navy">
+                    ← Kembali ke Halaman Katalog
+                </button>
+            </div>
+        </div>
+
+        <div id="admin-dashboard" class="hidden space-y-6">
+            <div class="eras-card rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="text-[11px] font-mono font-bold text-eras-blue">DATABASE: TURSO SQLITE CONNECTED</span>
+                    </div>
+                    <h2 class="font-display font-bold text-xl text-eras-navy mt-1">Kelola Katalog &amp; Harga ERAS DESIGN</h2>
+                    <p class="text-xs font-medium text-eras-blue">Tambah layanan baru atau ubah harga satuan, otomatis tersimpan ke database.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="resetDefaultData()" class="px-3.5 py-2 bg-eras-skylight hover:bg-eras-sky text-eras-navy border-2 border-eras-navy text-xs font-extrabold rounded-xl flex items-center gap-1.5 transition-colors">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                        <span>Reset 10 Layanan Poster</span>
+                    </button>
+                    <button onclick="lockAdmin()" class="px-3.5 py-2 bg-eras-coral text-white border-2 border-eras-navy text-xs font-extrabold rounded-xl flex items-center gap-1.5 transition-colors">
+                        <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                        <span>Kunci</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kelola Token Pendaftaran Admin (Database Turso) -->
+            <div class="eras-card rounded-2xl p-4 sm:p-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                    <div>
+                        <h3 class="font-display font-bold text-base text-eras-navy flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-lg bg-eras-sky border border-eras-navy flex items-center justify-center">
+                                <i data-lucide="key-round" class="w-4 h-4 text-eras-navy"></i>
+                            </span>
+                            <span>Token Pendaftaran Admin (Database Turso)</span>
+                        </h3>
+                        <p class="text-xs font-medium text-eras-blue mt-0.5">
+                            Token ini wajib diisi saat daftar akun admin baru. Bisa kamu ubah kapan saja.
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        onclick="generateRandomInviteToken()"
+                        class="px-3 py-1.5 rounded-xl bg-eras-skylight hover:bg-eras-sky text-eras-navy border border-eras-navy text-xs font-extrabold self-start sm:self-auto"
+                    >
+                        Acak Token
+                    </button>
+                </div>
+
+                <form onsubmit="handleUpdateInviteToken(event)" class="flex flex-col sm:flex-row gap-2.5">
+                    <input
+                        type="text"
+                        id="admin-invite-token-input"
+                        required
+                        minlength="6"
+                        maxlength="64"
+                        placeholder="Memuat token dari database..."
+                        class="flex-1 px-3.5 py-2.5 bg-eras-skylight border-2 border-eras-navy/40 rounded-xl text-sm font-mono font-bold text-eras-deep focus:outline-none focus:border-eras-navy focus:bg-white"
+                    >
+                    <button
+                        type="submit"
+                        class="py-2.5 px-4 eras-btn-primary font-extrabold text-sm rounded-xl flex items-center justify-center gap-1.5 shrink-0"
+                    >
+                        <i data-lucide="check" class="w-4 h-4"></i>
+                        <span>Simpan Token</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Tambah Item Layanan Baru -->
+            <div class="eras-card rounded-2xl p-4 sm:p-6">
+                <h3 class="font-display font-bold text-base text-eras-navy mb-4 flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-lg bg-eras-gold border border-eras-navy flex items-center justify-center">
+                        <i data-lucide="plus" class="w-4 h-4 text-eras-deep"></i>
+                    </span>
+                    <span>Tambah Item Layanan Baru</span>
+                </h3>
+                <form onsubmit="handleAddService(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-3.5">
+                    <div class="sm:col-span-5">
+                        <label class="block text-xs font-extrabold text-eras-navy mb-1">Nama Layanan / Produk *</label>
+                        <input type="text" id="new-name" required placeholder="Misal: Undangan Digital / Cetak" class="w-full px-3.5 py-2.5 bg-eras-skylight border-2 border-eras-navy/40 rounded-xl text-sm font-medium focus:outline-none focus:border-eras-navy focus:bg-white">
+                    </div>
+                    <div class="sm:col-span-3">
+                        <label class="block text-xs font-extrabold text-eras-navy mb-1">Kategori *</label>
+                        <select id="new-category" class="w-full px-3.5 py-2.5 bg-eras-skylight border-2 border-eras-navy/40 rounded-xl text-sm font-bold text-eras-navy focus:outline-none focus:border-eras-navy focus:bg-white">
+                            <option value="Desain Grafis">Desain Grafis</option>
+                            <option value="Cetak & Stiker">Cetak &amp; Stiker</option>
+                            <option value="Banner & Dokumen">Banner &amp; Dokumen</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-extrabold text-eras-navy mb-1">Harga (Rp) *</label>
+                        <input type="number" id="new-price" required min="500" step="500" placeholder="25000" class="w-full px-3.5 py-2.5 bg-eras-skylight border-2 border-eras-navy/40 rounded-xl text-sm font-mono font-bold focus:outline-none focus:border-eras-navy focus:bg-white">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-extrabold text-eras-navy mb-1">Satuan *</label>
+                        <select id="new-unit" class="w-full px-3.5 py-2.5 bg-eras-skylight border-2 border-eras-navy/40 rounded-xl text-sm font-bold text-eras-navy focus:outline-none focus:border-eras-navy focus:bg-white">
+                            <option value="paket">paket</option>
+                            <option value="lembar">lembar</option>
+                            <option value="meter">meter</option>
+                            <option value="pcs">pcs</option>
+                            <option value="box">box</option>
+                            <option value="foto">foto</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-9">
+                        <label class="block text-xs font-extrabold text-eras-navy mb-1">Keterangan Teknis / Bahan (Opsional)</label>
+                        <input type="text" id="new-note" placeholder="Misal: File siap cetak CMYK + bonus revisi 2x" class="w-full px-3.5 py-2.5 bg-eras-skylight border-2 border-eras-navy/40 rounded-xl text-sm font-medium focus:outline-none focus:border-eras-navy focus:bg-white">
+                    </div>
+                    <div class="sm:col-span-3 flex items-end">
+                        <button type="submit" class="w-full py-2.5 px-4 eras-btn-primary font-extrabold text-sm rounded-xl flex items-center justify-center gap-1.5">
+                            <i data-lucide="save" class="w-4 h-4"></i>
+                            <span>Simpan Item</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="eras-card rounded-2xl overflow-hidden">
+                <div class="p-4 sm:px-6 bg-eras-skylight border-b-2 border-eras-navy/20 flex items-center justify-between">
+                    <h3 class="font-display font-bold text-base text-eras-navy">Daftar Layanan Aktif (<span id="admin-item-count">0</span>)</h3>
+                    <span class="text-xs font-bold text-eras-blue">Ubah angka harga untuk edit cepat</span>
+                </div>
+                <div id="admin-service-list" class="divide-y-2 divide-eras-sky"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- FOOTER                                                                -->
+    <!-- ===================================================================== -->
+    <footer class="mt-auto relative pt-10 bg-eras-navy text-white">
+        <div class="absolute top-0 inset-x-0 overflow-hidden leading-none -translate-y-[98%]">
+            <svg class="w-full h-8 sm:h-12 text-eras-navy" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M0,40 C300,110 900,-20 1200,50 L1200,120 L0,120 Z" fill="currentColor"></path>
+            </svg>
+        </div>
+
+        <div class="max-w-7xl xl:max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pb-8 pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+            <div>
+                <div class="inline-block px-3 py-1 rounded-lg bg-eras-coral text-white font-display font-bold text-xs tracking-wider uppercase mb-2">
+                    CONTACT ME
+                </div>
+                <div class="space-y-1.5 text-sm font-bold">
+                    <a href="https://wa.me/6285701382605" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 hover:text-eras-gold transition-colors">
+                        <i data-lucide="phone" class="w-4 h-4 text-eras-gold"></i>
+                        <span>0857 0138 2605</span>
+                    </a>
+                    <a href="https://www.instagram.com/onyoure_ra" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 hover:text-eras-gold transition-colors">
+                        <svg class="w-4 h-4 text-eras-gold shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                            <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
+                        </svg>
+                        <span>@onyoure_ra</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="sm:text-right text-xs sm:text-sm font-semibold text-eras-sky space-y-1">
+                <p>*pengerjaan tidak sampai 24 jam (tergantung revisi)</p>
+                <p class="text-eras-gold font-extrabold">*garansi 2x revisi design</p>
+                <p class="text-[11px] text-white/60 pt-2">© ERAS DESIGN — Desain Grafis Plus Cetak</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===================================================================== -->
+    <!-- WHATSAPP CHECKOUT MODAL & TOAST                                       -->
+    <!-- ===================================================================== -->
+    <div id="checkout-modal" class="hidden fixed inset-0 z-50 bg-eras-deep/65 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="eras-card rounded-2xl max-w-md w-full overflow-hidden">
+            <div class="p-4 bg-eras-navy text-white flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="message-circle" class="w-5 h-5 text-eras-gold"></i>
+                    <h3 class="font-display font-bold text-base">Kirim Pesanan ke ERAS DESIGN</h3>
+                </div>
+                <button onclick="closeCheckoutModal()" class="p-1 rounded-lg hover:bg-white/20 transition-colors">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div class="p-4 sm:p-5 space-y-4 bg-white">
+                <p class="text-xs font-semibold text-eras-blue">
+                    Rincian estimasi sudah dirangkum otomatis. Klik tombol di bawah untuk langsung chat ke WhatsApp <b class="text-eras-navy">0857 0138 2605</b>:
+                </p>
+
+                <pre id="wa-message-preview" class="bg-eras-skylight border-2 border-eras-navy/30 rounded-xl p-3.5 text-xs font-mono text-eras-deep whitespace-pre-wrap leading-relaxed max-h-60 overflow-y-auto"></pre>
+
+                <div class="flex flex-col sm:flex-row gap-2.5">
+                    <button onclick="copyWaMessage()" class="flex-1 py-2.5 px-4 bg-eras-skylight hover:bg-eras-sky text-eras-navy border-2 border-eras-navy font-extrabold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-colors">
+                        <i data-lucide="copy" class="w-4 h-4"></i>
+                        <span id="copy-btn-text">Salin Rincian</span>
+                    </button>
+                    <a id="wa-direct-link" href="#" target="_blank" rel="noopener noreferrer" class="flex-1 py-2.5 px-4 eras-btn-primary font-extrabold text-xs rounded-xl flex items-center justify-center gap-1.5">
+                        <i data-lucide="external-link" class="w-4 h-4"></i>
+                        <span>Buka WhatsApp</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed top-20 right-4 z-50 bg-eras-navy text-white border-2 border-eras-gold text-xs font-bold px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 translate-y-2 opacity-0 pointer-events-none transition-all duration-300">
+        <i data-lucide="check-circle" class="w-4 h-4 text-eras-gold"></i>
+        <span id="toast-msg">Berhasil disimpan</span>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>

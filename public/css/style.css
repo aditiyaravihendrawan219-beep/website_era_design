@@ -1,0 +1,73 @@
+/* Custom scrollbar untuk horizontal category pills di mobile */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Background langit pastel berawan */
+.sky-hero-bg {
+    background: linear-gradient(180deg, #CFE4F7 0%, #E7F2FC 55%, #F4F9FE 100%);
+}
+
+/* Efek tulisan tebal dengan outline putih & shadow lembut seperti poster */
+.poster-text-gold {
+    color: #F5BD41;
+    -webkit-text-stroke: 6px #FFFFFF;
+    paint-order: stroke fill;
+    text-shadow: 0 5px 0 rgba(30, 96, 145, 0.18);
+}
+
+.poster-text-blue {
+    color: #2874A6;
+    -webkit-text-stroke: 6px #FFFFFF;
+    paint-order: stroke fill;
+    text-shadow: 0 5px 0 rgba(30, 96, 145, 0.22);
+}
+
+@media (max-width: 640px) {
+    .poster-text-gold,
+    .poster-text-blue {
+        -webkit-text-stroke: 4px #FFFFFF;
+    }
+}
+
+/* Gaya Kartu Ilustrasi Poster: Border Navy Tebal + Hard Shadow Offset */
+.eras-card {
+    background-color: #FFFFFF;
+    border: 2.5px solid #1E6091;
+    box-shadow: 0 4px 0 #1E6091;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.eras-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #1E6091;
+}
+
+.eras-card-selected {
+    background-color: #FFFDF5;
+    border: 2.5px solid #D94E43;
+    box-shadow: 0 4px 0 #D94E43;
+}
+
+.eras-btn-primary {
+    background-color: #F5BD41;
+    color: #17496D;
+    border: 2px solid #1E6091;
+    box-shadow: 0 3px 0 #1E6091;
+    transition: all 0.12s ease;
+}
+
+.eras-btn-primary:hover {
+    background-color: #FFD05B;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 0 #1E6091;
+}
+
+.eras-btn-primary:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 #1E6091;
+}
