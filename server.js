@@ -542,7 +542,13 @@ const publicApiPaths = new Set([
 ]);
 
 app.use("/api/*", async (c, next) => {
-  const cleanPath = new URL(c.req.url).pathname.replace(/\/+$/, "") || "/";
+  const rawPath =
+    c.req.header("x-matched-path") ||
+    c.req.header("x-invoke-path") ||
+    c.req.path ||
+    new URL(c.req.url).pathname;
+  const cleanPath = rawPath.replace(/\/+$/, "") || "/";
+
   const isPublicGet =
     c.req.method === "GET" &&
     (cleanPath === "/api/items" || cleanPath === "/api/logo");
